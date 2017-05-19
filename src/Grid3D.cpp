@@ -229,13 +229,14 @@ Eigen::Vector3i Grid3D::point_to_coord(const Eigen::Vector3d &point, const int g
 {
     int i = 0, j = 0, k = 0;
     float half_gridsize = gridn*abs_voxelsize/2;
-    point.array()+half_gridsize;
+    std::cout << "half_gridsize" << half_gridsize << '\n';
+    Eigen::Vector3d point_shifted=point.array()+half_gridsize;
 
-    std::cout << "point is " << point << '\n';
+    std::cout << "point is " << point_shifted << '\n';
 
-    i=std::floor(point(0)/abs_voxelsize);
-    j=std::floor(point(1)/abs_voxelsize);
-    k=std::floor(point(2)/abs_voxelsize);
+    i=std::floor(point_shifted(0)/abs_voxelsize);
+    j=std::floor(point_shifted(1)/abs_voxelsize);
+    k=std::floor(point_shifted(2)/abs_voxelsize);
 
 
     return Eigen::Vector3i(i, j, k);
