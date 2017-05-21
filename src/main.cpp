@@ -136,8 +136,8 @@ void exercise1(){
     igl::viewer::Viewer viewer;
     viewer.data.set_mesh(V_rc, F_rc);
     viewer.data.set_points(grid.points, Eigen::RowVector3d(0.0, 1.0, 0.0));
-    //grid.visualize_edges(viewer);
-    //viewer.data.add_edges(points, points + normals * 0.1, Eigen::RowVector3d(1.0, 0.0, 0.0));
+    // grid.visualize_edges(viewer);
+    // viewer.data.add_edges(points, points + normals * 0.1, Eigen::RowVector3d(1.0, 0.0, 0.0));
     viewer.core.point_size = 5;
     show_coordinate_system(viewer);
     viewer.launch();

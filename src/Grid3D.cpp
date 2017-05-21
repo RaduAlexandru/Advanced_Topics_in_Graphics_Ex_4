@@ -229,10 +229,10 @@ Eigen::Vector3i Grid3D::point_to_coord(const Eigen::Vector3d &point, const int g
 {
     int i = 0, j = 0, k = 0;
     float half_gridsize = gridn*abs_voxelsize/2;
-    std::cout << "half_gridsize" << half_gridsize << '\n';
+    // std::cout << "half_gridsize" << half_gridsize << '\n';
     Eigen::Vector3d point_shifted=point.array()+half_gridsize;
 
-    std::cout << "point is " << point_shifted << '\n';
+    // std::cout << "point is " << point_shifted << '\n';
 
     i=std::floor(point_shifted(0)/abs_voxelsize);
     j=std::floor(point_shifted(1)/abs_voxelsize);
@@ -405,6 +405,22 @@ void Grid3D::smooth_normals(Eigen::MatrixXd &normals, const double sigma) {
     normals_field.resize(num_voxel, 3);
 
     // your code here
+
+    Eigen::VectorXd data;
+    Eigen::VectorXd data_out;
+    // data_out=volume_to_slice(1,1,data);
+    // std::cout << "data is " << data_out.rows() << " " << data_out.cols() << '\n';
+
+    for (size_t slice_idx = 0; slice_idx < gridn; slice_idx++) {
+       for (size_t dim = 0; dim < normals.cols(); dim++) {
+         Eigen::MatrixXd slice = volume_to_slice(slice_idx, dim, normals.col(dim));
+         slice = conv2d(slice, kernel);
+         slice_to_volume(slice_idx, dim, slice, normals_field);
+       }
+    }
+
+
+
 }
 
 /**
@@ -432,6 +448,35 @@ Eigen::Matrix<short, Eigen::Dynamic, 1> Grid3D::normal_divergence(){
     //int lin_index = i + j * gridn + k * gridn * gridn;
 
     // your code here
+    for (size_t i = 1; i < gridn-1; i++) {
+      for (size_t j = 1; j < gridn-1; j++) {
+        for (size_t k = 1; k < gridn-1; k++) {
+          int left,right,top,bottom,far,near;
+
+          int current=coord_to_lin_idx(Eigen::Vector3i(i,j,k),gridn);
+
+          left=coord_to_lin_idx(Eigen::Vector3i(i-1,j,k),gridn);
+          right=coord_to_lin_idx(Eigen::Vector3i(i+1,j,k),gridn);
+          top=coord_to_lin_idx(Eigen::Vector3i(i,j+1,k),gridn);
+          bottom=coord_to_lin_idx(Eigen::Vector3i(i,j-1,k),gridn);
+          far=coord_to_lin_idx(Eigen::Vector3i(i,j,k+1),gridn); //TODO I am not sure if Z is in positive direction or negative
+          near=coord_to_lin_idx(Eigen::Vector3i(i,j,k-1),gridn);
+
+          float vx= normals_field(left,0)-normals_field(right,0);
+          float vy= normals_field(top,1)-normals_field(bottom,1);
+          float vz= normals_field(far,2)-normals_field(near,2);
+
+          float div=vx+vy+vz;
+          tmp_divergence(current)=div;
+
+
+        }
+      }
+    }
+
+
+
+
 
     double max = tmp_divergence.maxCoeff();
 
